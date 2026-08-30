@@ -1,0 +1,84 @@
+version: '3.8'
+
+
+services:
+
+  node1:
+    build:
+      context: ./gopher-kvs
+      dockerfile: Dockerfile
+    container_name: n1
+    ports:
+      - "8083:8083"
+      - "6080:6080"
+    environment:
+      NODE_ADDRESS: "n1:8083"
+      APP_NAME: "gopher-kvs"
+      NODE_ID: "n1"
+      GRPC_PORT: "8080"
+      HTTP_PORT: "8083"
+      PEERS: "n2=n2:8080,n3=n3:8080"
+    volumes:
+      - node1-data:/data
+
+  node2:
+    build:
+      context: ./gopher-kvs
+      dockerfile: Dockerfile
+    container_name: n2
+    ports:
+      - "8084:8083"
+      - "6081:6080"
+    environment:
+      NODE_ADDRESS: "n2:8083"
+      APP_NAME: "gopher-kvs"
+      NODE_ID: "n2"
+      GRPC_PORT: "8080"
+      HTTP_PORT: "8083"
+      PEERS: "n1=n1:8080,n3=n3:8080"
+    volumes:
+      - node2-data:/data
+
+
+  node3:
+    build:
+      context: ./gopher-kvs
+      dockerfile: Dockerfile
+    container_name: n3
+    ports:
+      - "8085:8083"
+      - "6082:6080"
+    environment:
+      NODE_ADDRESS: "n3:8083"
+      APP_NAME: "gopher-kvs"
+      NODE_ID: "n3"
+      GRPC_PORT: "8080"
+      HTTP_PORT: "8083"
+      PEERS: "n1=n1:8080,n2=n2:8080"
+    volumes:
+      - node3-data:/data
+
+
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./gopher-kvs/prometheus.yaml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  node1-data:
+  node2-data:
+  node3-data:
+  
+  
