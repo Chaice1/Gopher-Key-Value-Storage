@@ -1,0 +1,39 @@
+syntax="proto3";
+
+package proto.raft;
+
+option go_package = "github.com/Chaice1/Gopher-Key-Value-Storage/gopher-kvs/gen;raftpb";
+service Raft{
+    rpc RequestVote(VoteRequest) returns(VoteResponse);
+    rpc AppendEntries(AppendEntriesRequest) returns(AppendEntriesResponse);
+}
+
+
+message VoteRequest{
+    uint64 term = 1;
+    string candidate_id = 2;
+    int64 lastLogIdx = 3;
+    uint64 lastLogTerm = 4;
+}
+
+message VoteResponse{
+    uint64 term = 1;
+    bool agree = 2;
+}
+
+message AppendEntriesRequest{
+    uint64 term = 1;
+    string leader_address = 2;
+    uint32 command = 3;
+    string key = 4;
+    bytes val = 5;
+    int64 lastCommitIdx = 6;
+    int64 lastPrevIdx = 7;
+    uint64 PrevTerm = 8;
+    uint64 EntryTerm=9;
+}
+
+message AppendEntriesResponse{
+    uint64 term = 1;
+    bool success = 2;
+}
