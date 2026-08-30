@@ -165,8 +165,8 @@ func TestE2E_WALRecovery(t *testing.T) {
 
 	require.NoError(t, err)
 	t.Cleanup(func() {
-		if err := newWal.Close(); err != nil {
-			t.Log("failed to close wal", "error", err)
+		if wErr := newWal.Close(); wErr != nil {
+			t.Log("failed to close wal", "error", wErr)
 		}
 	})
 

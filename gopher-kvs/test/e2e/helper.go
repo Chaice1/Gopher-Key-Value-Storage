@@ -90,8 +90,8 @@ func StartCluster(t *testing.T, count int) *TestCluster {
 		}
 
 		t.Cleanup(func() {
-			if err := w.Close(); err != nil {
-				t.Log("failed to close wal", "error", err)
+			if wErr := w.Close(); wErr != nil {
+				t.Log("failed to close wal", "error", wErr)
 			}
 		})
 
