@@ -234,6 +234,8 @@ func HandleCallPeers(ctx context.Context, n *Node) {
 	}
 
 }
+
+//nolint:gocyclo
 func (n *Node) runLeader(ctx context.Context) {
 	n.logger.Info("Leader is ready")
 	tick := time.NewTicker(time.Duration(500) * time.Millisecond)
@@ -304,13 +306,13 @@ func (n *Node) runLeader(ctx context.Context) {
 
 					for j := n.lastCommitedIdx + 1; j <= i; j++ {
 						n.metrics.CommitedCommands.Inc()
-						LogEntry := n.log[j]
+						logEntry := n.log[j]
 
-						if LogEntry.Command == 'S' {
-							n.s.Set(LogEntry.Key, LogEntry.Value)
+						if logEntry.Command == 'S' {
+							n.s.Set(logEntry.Key, logEntry.Value)
 						}
-						if LogEntry.Command == 'D' {
-							if err := n.s.Delete(LogEntry.Key); err != nil {
+						if logEntry.Command == 'D' {
+							if err := n.s.Delete(logEntry.Key); err != nil {
 								n.logger.Error("failed to delete key", "error", err)
 							}
 
@@ -446,6 +448,8 @@ func handleRequestVote(node *Node, msg *VoteMessageReq) bool {
 
 	return true
 }
+
+//nolint:gocyclo
 func handleAppendEntries(node *Node, msg *AppendEntriesReq) bool {
 	node.mu.Lock()
 	defer node.mu.Unlock()
@@ -528,13 +532,13 @@ func handleAppendEntries(node *Node, msg *AppendEntriesReq) bool {
 		if next >= int64(len(node.log)) {
 			break
 		}
-		LogEntry := node.log[next]
+		logEntry := node.log[next]
 
-		if LogEntry.Command == 'S' {
-			node.s.Set(LogEntry.Key, LogEntry.Value)
+		if logEntry.Command == 'S' {
+			node.s.Set(logEntry.Key, logEntry.Value)
 		}
-		if LogEntry.Command == 'D' {
-			if err := node.s.Delete(LogEntry.Key); err != nil {
+		if logEntry.Command == 'D' {
+			if err := node.s.Delete(logEntry.Key); err != nil {
 				node.logger.Error("failed to delete key", "error", err)
 			}
 		}
@@ -553,6 +557,7 @@ func handleAppendEntries(node *Node, msg *AppendEntriesReq) bool {
 	return true
 }
 
+//nolint:gocyclo
 func (n *Node) runCandidate(ctx context.Context) {
 
 	duration := 2*time.Second + time.Duration(rand.IntN(500))*time.Millisecond

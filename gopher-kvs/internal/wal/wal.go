@@ -27,12 +27,12 @@ type Wal struct {
 
 func NewWal(pathLog, pathMetaData string, logger *slog.Logger, s Storage) (*Wal, error) {
 
-	fLog, err := os.OpenFile(pathLog, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0644)
+	fLog, err := os.OpenFile(pathLog, os.O_APPEND|os.O_CREATE|os.O_RDWR, 0o644)
 	if err != nil {
 		return nil, err
 	}
 
-	fMetaData, err := os.OpenFile(pathMetaData, os.O_CREATE|os.O_RDWR, 0644)
+	fMetaData, err := os.OpenFile(pathMetaData, os.O_CREATE|os.O_RDWR, 0o644)
 	if err != nil {
 		return nil, err
 	}
@@ -100,11 +100,11 @@ func (w *Wal) RecoverLogHistory() ([]cluster.LogEntry, error) {
 		BufKey := make([]byte, keyLen)
 		BufVal := make([]byte, valLen)
 
-		if _, err := io.ReadFull(w.fileLog, BufKey); err != nil {
+		if _, err = io.ReadFull(w.fileLog, BufKey); err != nil {
 			w.logger.Error("failed to read bytes from file", "error", err)
 			return nil, err
 		}
-		if _, err := io.ReadFull(w.fileLog, BufVal); err != nil {
+		if _, err = io.ReadFull(w.fileLog, BufVal); err != nil {
 			w.logger.Error("failed to read bytes from file", "error", err)
 			return nil, err
 		}
@@ -150,6 +150,7 @@ func (w *Wal) WriteMetaData(term uint64, votedFor string, lastCommitedIdx int64)
 
 }
 
+//nolint:gocritic
 func (w *Wal) RecoverMetaData() (uint64, string, int64, error) {
 	if _, err := w.fileMetaData.Seek(0, 0); err != nil {
 		return 0, "", -1, err
@@ -173,7 +174,7 @@ func (w *Wal) RecoverMetaData() (uint64, string, int64, error) {
 
 	bufVotedFor := make([]byte, votedForLen)
 
-	if _, err := io.ReadFull(w.fileMetaData, bufVotedFor); err != nil {
+	if _, err = io.ReadFull(w.fileMetaData, bufVotedFor); err != nil {
 		w.logger.Error("failed to read bytes from file", "error", err)
 		return 0, "", -1, err
 	}
@@ -184,7 +185,13 @@ func (w *Wal) RecoverMetaData() (uint64, string, int64, error) {
 }
 
 func (w *Wal) Close() error {
-	w.fileLog.Close()
-	w.fileMetaData.Close()
+	if err := w.fileLog.Close(); err != nil {
+		w.logger.Error("failed to close filelog", "error", err)
+		return err
+	}
+	if err := w.fileMetaData.Close(); err != nil {
+		w.logger.Error("faield to close filemetadata", "error", err)
+		return err
+	}
 	return nil
 }

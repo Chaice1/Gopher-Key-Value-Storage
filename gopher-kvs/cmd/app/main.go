@@ -75,15 +75,19 @@ func runApp() {
 
 	logPath := fmt.Sprintf("/data/log/%s.wal", cfg.NodeID)
 	metaDataPath := fmt.Sprintf("/data/metadata/%s.wal", cfg.NodeID)
-	wal, err := wal.NewWal(logPath, metaDataPath, log, s)
+	w, err := wal.NewWal(logPath, metaDataPath, log, s)
 	if err != nil {
 		slog.Error("failed to create wal", "error", err)
 		return
 	}
 
-	defer wal.Close()
+	defer func() {
+		if err := w.Close(); err != nil {
+			log.Error("failed to close wal", "error", err)
+		}
+	}()
 
-	node, err := cluster.NewNode(cfg.NodeID, uint32(len(Peers))+1, nodeIDs, nodeClients, log, wal, s, cfg.NodeAddress)
+	node, err := cluster.NewNode(cfg.NodeID, uint32(len(Peers))+1, nodeIDs, nodeClients, log, w, s, cfg.NodeAddress)
 	if err != nil {
 		slog.Error("failed to create node")
 		return
@@ -102,8 +106,8 @@ func runApp() {
 	raftpb.RegisterRaftServer(grpcServer, grpcHandler)
 
 	go func() {
-		if err := grpcServer.Serve(lis); err != nil {
-			slog.Error("gRPC server failed ", "err", err)
+		if serveErr := grpcServer.Serve(lis); serveErr != nil {
+			slog.Error("gRPC server failed ", "err", serveErr)
 		}
 	}()
 
@@ -144,6 +148,7 @@ func runApp() {
 
 }
 
+//nolint:gocritic
 func CreatePeers(peers []config.Peer) ([]raftpb.RaftClient, []string) {
 	var clients []raftpb.RaftClient
 	var ids []string

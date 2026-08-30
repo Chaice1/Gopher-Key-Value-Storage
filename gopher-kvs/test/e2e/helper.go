@@ -45,7 +45,9 @@ func StartCluster(t *testing.T, count int) *TestCluster {
 		}
 
 		ports[i] = lis.Addr().(*net.TCPAddr).Port
-		lis.Close()
+		if err := lis.Close(); err != nil {
+			slog.Error("failed to close listener", "error", err)
+		}
 	}
 
 	nodeIDs := make([]string, count)
@@ -87,7 +89,11 @@ func StartCluster(t *testing.T, count int) *TestCluster {
 			t.Fatalf("failed to create wal for %s: %v", nodeIDs[i], s)
 		}
 
-		t.Cleanup(func() { w.Close() })
+		t.Cleanup(func() {
+			if err := w.Close(); err != nil {
+				t.Log("failed to close wal", "error", err)
+			}
+		})
 
 		nodeAddr := fmt.Sprintf("localhost:%d", ports[i]+1000)
 		node, err := cluster.NewNode(

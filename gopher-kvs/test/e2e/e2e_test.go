@@ -1,6 +1,7 @@
 package e2e
 
 import (
+	"bytes"
 	"log/slog"
 	"sync"
 	"testing"
@@ -155,13 +156,19 @@ func TestE2E_WALRecovery(t *testing.T) {
 
 	leader.Cancel()
 	leader.GrpcServer.Stop()
-	leader.Node.Wal.Close()
+	if err := leader.Node.Wal.Close(); err != nil {
+		t.Log("failed to close wal", "error", err)
+	}
 
 	newStorage := storage.NewStorage()
 	newWal, err := wal.NewWal(leader.LogPath, leader.MetadataPath, slog.Default(), newStorage)
 
 	require.NoError(t, err)
-	t.Cleanup(func() { newWal.Close() })
+	t.Cleanup(func() {
+		if err := newWal.Close(); err != nil {
+			t.Log("failed to close wal", "error", err)
+		}
+	})
 
 	newNode, err := cluster.NewNode(
 		"node",
@@ -244,7 +251,7 @@ func TestE2E_ConcurrentSets(t *testing.T) {
 					return false
 				}
 
-				if string(val) != string(test.Value) {
+				if !bytes.Equal(val, test.Value) {
 					return false
 				}
 			}

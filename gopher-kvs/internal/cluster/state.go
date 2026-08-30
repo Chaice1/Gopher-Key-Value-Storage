@@ -2,6 +2,7 @@ package cluster
 
 type State string
 
+// Follower is a state for node that only responses to requests
 const (
 	Follower  State = "Follower"
 	Candidate State = "Candidate"

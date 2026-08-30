@@ -21,6 +21,8 @@ func (m *mockWal) Write(int64, uint64, byte, string, []byte) error {
 func (m *mockWal) RecoverLogHistory() ([]LogEntry, error) {
 	return nil, nil
 }
+
+//nolint:gocritic
 func (m *mockWal) RecoverMetaData() (uint64, string, int64, error) {
 	return 0, "", 0, nil
 }
