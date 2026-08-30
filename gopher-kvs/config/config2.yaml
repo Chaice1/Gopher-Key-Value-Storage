@@ -1,0 +1,7 @@
+app: "gopher-kvs"
+node_id: "n2"
+grpc_port: 8081
+http_port: 8084
+node_address: "localhost:8084"
+peers: "n1=localhost:8080,n3=localhost:8082"
+  
