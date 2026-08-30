@@ -1,0 +1,12 @@
+global:
+  scrape_interval: 5s
+
+
+scrape_configs:
+  - job_name: 'raft_nodes'
+    static_configs:
+      - targets:
+        - 'n1:6080'
+        - 'n2:6080'
+        - 'n3:6080'
+

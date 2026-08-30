@@ -1,0 +1,42 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: none
+  enable:
+    - govet
+    - errcheck
+    - staticcheck
+    - ineffassign
+    - gocyclo
+    - gocritic
+    - revive
+  settings:
+    govet:
+      enable:
+        - shadow
+    gocyclo:
+      min-complexity: 15
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+    gocritic:
+      enabled-tags:
+        - performance
+        - style
+        - experimental
+  exclusions:
+    rules:
+      - linters:
+          - revive
+        text: "exported (method|function|type|const|var) (.+) should have comment or be unexported"
+      - linters:
+          - revive
+        text: "should have a package comment"
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
