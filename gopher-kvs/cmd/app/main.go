@@ -82,8 +82,8 @@ func runApp() {
 	}
 
 	defer func() {
-		if err := w.Close(); err != nil {
-			log.Error("failed to close wal", "error", err)
+		if wErr := w.Close(); wErr != nil {
+			log.Error("failed to close wal", "error", wErr)
 		}
 	}()
 

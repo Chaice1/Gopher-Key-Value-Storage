@@ -235,7 +235,7 @@ func HandleCallPeers(ctx context.Context, n *Node) {
 
 }
 
-//nolint:gocyclo
+//nolint:gocyclo // Raft state machine requires complex control flow
 func (n *Node) runLeader(ctx context.Context) {
 	n.logger.Info("Leader is ready")
 	tick := time.NewTicker(time.Duration(500) * time.Millisecond)
@@ -449,7 +449,7 @@ func handleRequestVote(node *Node, msg *VoteMessageReq) bool {
 	return true
 }
 
-//nolint:gocyclo
+//nolint:gocyclo // Raft state machine requires complex control flow
 func handleAppendEntries(node *Node, msg *AppendEntriesReq) bool {
 	node.mu.Lock()
 	defer node.mu.Unlock()
@@ -557,7 +557,7 @@ func handleAppendEntries(node *Node, msg *AppendEntriesReq) bool {
 	return true
 }
 
-//nolint:gocyclo
+//nolint:gocyclo // Raft state machine requires complex control flow
 func (n *Node) runCandidate(ctx context.Context) {
 
 	duration := 2*time.Second + time.Duration(rand.IntN(500))*time.Millisecond
