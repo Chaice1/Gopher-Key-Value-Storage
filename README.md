@@ -46,19 +46,30 @@
 
 ##  Использование API
 **В кластере работает умный роутинг (Reverse Proxy).**Не нужно знать**, кто сейчас Лидер — просто отправляй запросы в любую ноду, а кластер сам перенаправит запрос под капотом!**
+
 **1. Запись данных**
 ```bash
 curl -X POST http://localhost:8083/set \
      -H "Content-Type: application/json" \
      -d '{"key": "gopher", "val": "is_awesome"}'
 ```
-**2. Чтение данных **
+**2. Чтение данных**
 ```bash
 curl -s -X GET "http://localhost:8084/get?key=gopher"
 ```
-**3. Удаление данных **
+**3. Удаление данных**
 ```bash
 curl -X DELETE http://localhost:8085/delete/gopher
 ```
+## Мониторинг
+Кластер отдает метрики в формате, понятном для Prometheus.
+Prometheus UI: http://localhost:9090
+Grafana: http://localhost:3000
+В Grafana можно подключить Prometheus как Data Source и отслеживать показатели, например raft_state (0=Follower, 1=Candidate, 2=Leader).
 
+## Тестирование
 
+1. **Запуск тестов**
+```bash
+make test
+```
