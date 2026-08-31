@@ -3,7 +3,7 @@ build:
 run:
 	docker-compose down && docker-compose up -d
 
-down-volumes:
+stop-volumes:
 	docker-compose down --volumes
 
 stop:
